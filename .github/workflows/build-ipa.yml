@@ -1,0 +1,76 @@
+name: Build iOS app (.ipa)
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rules tests
+        run: node tests/logic.test.js
+
+  build:
+    needs: test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Build (unsigned)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project CasinoMaster.xcodeproj \
+            -target CasinoMaster \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tail -n 60
+
+      - name: Package .ipa
+        run: |
+          APP=$(find ios/build -type d -name "CasinoMaster.app" -path "*Release-iphoneos*" | head -n 1)
+          echo "Built app: $APP"
+          test -f "$APP/web/index.html"
+          mkdir -p dist/Payload
+          cp -R "$APP" dist/Payload/
+          cd dist && zip -qry CasinoMaster.ipa Payload && ls -la CasinoMaster.ipa
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CasinoMaster-ipa
+          path: dist/CasinoMaster.ipa
+
+      - name: Publish to the "latest" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest dist/CasinoMaster.ipa \
+            --target "$GITHUB_SHA" \
+            --title "Casino Master (latest build)" \
+            --notes "Unsigned build from ${GITHUB_REF_NAME} @ ${GITHUB_SHA::7}. Install with iLoadly / Sideloadly / AltStore — they sign it with your Apple ID." \
+            --prerelease

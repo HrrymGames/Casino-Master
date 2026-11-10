@@ -1,0 +1,7 @@
+node_modules/
+dist/
+ios/build/
+ios/*.xcodeproj/
+/screenshots/
+tests/shots/
+.DS_Store
