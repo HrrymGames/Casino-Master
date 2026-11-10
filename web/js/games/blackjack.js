@@ -124,12 +124,12 @@ class Blackjack extends GameBase {
     const wrap = this.$('.js-hands');
     wrap.innerHTML = '';
     wrap.dataset.n = this.hands.length;
+    this.$('.table').classList.toggle('dealt', this.hands.length > 0);
     this.hands.forEach((h, i) => {
       const box = el(`<div class="bj-hand" data-i="${i}">
-        <div class="hand-label">${this.hands.length > 1 ? 'Hand ' + (i + 1) : 'You'} <b class="badge"></b></div>
+        <div class="hand-label">${this.hands.length > 1 ? 'Hand ' + (i + 1) : 'You'} <b class="badge"></b><span class="hand-result"></span></div>
         <div class="cards"></div>
         <div class="hand-bet"></div>
-        <div class="hand-result"></div>
       </div>`);
       const cards = box.querySelector('.cards');
       h.cards.forEach(c => cards.appendChild(Cards.el(c, true)));

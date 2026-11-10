@@ -31,7 +31,7 @@ fs.mkdirSync(OUT, { recursive: true });
       // text-bearing leaf elements (not inside cards, chips or the modal)
       const texts = [...document.querySelectorAll('#screen *')].filter(e =>
         [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && !e.closest('.card, .chip, .cell-chip, svg, .banner'));
-      const solids = [...document.querySelectorAll('#screen .card, #screen .chip-stack, #screen .dealer .hand, #screen .cell-chip, #screen .avatar')];
+      const solids = [...document.querySelectorAll('#screen .card, #screen .chip-stack, #screen .dealer .hand, #screen .cell-chip, #screen .avatar, #screen .table-print text, #screen .spot-ring')];
       const out = [];
       for (const t of texts) {
         const a = vis(t); if (!a) continue;

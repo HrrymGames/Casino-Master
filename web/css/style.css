@@ -449,34 +449,35 @@ input { -webkit-user-select: text; user-select: text; }
 
 /* ============ Blackjack ============ */
 .bj .table { display: flex; flex-direction: column; align-items: center; padding: 34px 8px 12px; }
-.bj .bj-dealer { margin-top: 10px; --cw: min(18vw, 78px); display: flex; flex-direction: column; align-items: center; min-height: calc(var(--cw) * 1.4 + 28px); }
+.bj .bj-dealer { margin-top: 10px; --cw: min(15vw, 66px); display: flex; flex-direction: column; align-items: center; min-height: calc(var(--cw) * 1.4 + 28px); }
 .cards { display: flex; justify-content: center; min-height: calc(var(--cw) * 1.4); }
 .cards .card + .card { margin-left: calc(var(--cw) * -.52); }
 .bj .js-dcards .card + .card { margin-left: calc(var(--cw) * -.35); }
-.table-print { width: min(92%, 380px); height: auto; margin: -2px 0 0; flex: none; }
+.table-print { width: min(88%, 330px); height: auto; margin: -2px 0 0; flex: none; }
 .table-print text { fill: rgba(231, 200, 115, .8); font-family: var(--serif); font-weight: 700; }
 .table-print text.sub { fill: rgba(246, 236, 210, .55); font-family: var(--body); font-weight: 600; }
-.bj-hands { flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; --cw: min(20vw, 84px); min-height: 0; }
+.bj-hands { flex: 1; display: flex; justify-content: center; align-items: flex-start; gap: 8px; width: 100%; --cw: min(16vw, 66px); min-height: 0; }
+.bj-hand { margin-top: auto !important; margin-bottom: auto !important; }
 .bj-hands[data-n="2"] { --cw: min(15vw, 64px); }
 .bj-hands[data-n="3"], .bj-hands[data-n="4"] { --cw: min(10vw, 46px); gap: 4px; }
 .bj-hand {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 8px 26px;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 8px 6px;
   border: 2px solid transparent; border-radius: 14px; transition: border-color .2s, background .2s;
 }
 .bj-hand.active { border-color: var(--gold); background: rgba(231, 200, 115, .08); box-shadow: 0 0 18px rgba(231, 200, 115, .25); }
 .bj-hands[data-n="1"] .bj-hand { border-color: rgba(231, 200, 115, .55); }
-.hand-bet { position: relative; height: 54px; display: flex; justify-content: center; }
+.hand-bet { position: relative; height: 40px; display: flex; justify-content: center; }
 .hand-bet .chip-stack { transform: scale(.85); }
 .hand-result {
-  position: absolute; left: 50%; top: -6px; transform: translate(-50%, -100%) scale(.5); opacity: 0; z-index: 5;
-  font-family: var(--display); font-size: 16px; letter-spacing: 1px; white-space: nowrap;
-  padding: 5px 10px; border-radius: 10px; background: rgba(0,0,0,.8); border: 2px solid var(--ivory);
-  transition: .3s cubic-bezier(.3, 1.5, .5, 1);
+  display: none; font-family: var(--body); letter-spacing: .5px; font-size: 12px; font-weight: 800; white-space: nowrap;
+  padding: 2px 8px; border-radius: 6px; background: rgba(0,0,0,.75); border: 1.5px solid var(--ivory); color: var(--ivory);
 }
-.hand-result.show { opacity: 1; transform: translate(-50%, -100%); }
+.hand-result.show { display: inline-block; animation: bannerIn .3s cubic-bezier(.3, 1.5, .5, 1); }
 .hand-result.win { border-color: var(--gold); color: var(--gold); }
 .hand-result.lose { border-color: #f08a8f; color: #ffb3b6; }
-.bj .bet-spot { position: absolute; bottom: 28%; left: 50%; transform: translateX(-50%); }
+.bj .bet-spot { position: relative; margin: 8px 0 26px; flex: none; }
+.bet-spot .stack-amt { margin-top: 22px; }
+.bj .bet-spot.hidden { display: none; }
 .discard-tray, .shoe {
   position: absolute; top: 10px; width: 44px; height: 58px; z-index: 1;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
@@ -728,17 +729,16 @@ input { -webkit-user-select: text; user-select: text; }
   .bj .table { padding: 22px 8px 6px; }
   .bj .bj-dealer .hand-label { height: 20px; }
   .bj .bj-dealer { --cw: min(11vh, 44px); min-height: 0; position: relative; z-index: 1; }
+  .bj .table.dealt .table-print { display: none; }
   .bj .table-print { position: absolute; top: 29%; left: 50%; transform: translateX(-50%); width: 270px; margin: 0; z-index: 0; opacity: .85; }
   .bj-hands { align-items: flex-end; position: relative; z-index: 1; }
   .bj-hand { padding-bottom: 6px !important; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; }
   .bj-hand .hand-label { width: 100%; }
-  .hand-result { left: auto; right: calc(100% + 6px); top: 50%; transform: translate(0, -50%) scale(.5); }
-  .hand-result.show { transform: translate(0, -50%); }
   .bj-hand .hand-bet { position: static; height: auto; width: 50px; margin-left: 4px; align-self: center; }
   .bj-hands { --cw: min(13.5vh, 52px); }
   .bj-hands[data-n="2"] { --cw: min(8.5vh, 44px); }
   .bj-hands[data-n="3"], .bj-hands[data-n="4"] { --cw: min(7.5vh, 38px); }
-  .bj .bet-spot { bottom: 16%; }
+  .bj .bet-spot { margin: 4px 0 20px; }
   .hand-bet { height: 26px; }
   .count-pill { top: 10px; right: 64px; }
 
