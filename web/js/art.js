@@ -333,8 +333,19 @@ const Art = (() => {
     const id = 'd' + (uid++);
     const s = SKIN[p.skin] || SKIN.fair;
     const hc = p.hairColor || '#2a1a12';
+    const vest = p.vest || '#2a2830';
     const L = 'stroke="#1a120e" stroke-width="1.1" stroke-linejoin="round"';
     const shirt = `url(#sh${id})`;
+    const hi = shade(hc, 0.4), lo = shade(hc, -0.35);
+    /* long wavy hair falling over each shoulder (drawn over the shirt, under the head) */
+    const locks = p.sex !== 'f' ? '' : [false, true].map(m => {
+      const x = v => (m ? 240 - v : v);
+      return `<path d="M${x(98)} 74 C${x(88)} 86 ${x(84)} 98 ${x(88)} 110 C${x(92)} 120 ${x(82)} 128 ${x(84)} 140 C${x(86)} 152 ${x(78)} 160 ${x(84)} 170
+          C${x(92)} 166 ${x(98)} 158 ${x(100)} 148 C${x(102)} 136 ${x(108)} 128 ${x(106)} 116 C${x(104)} 104 ${x(110)} 94 ${x(108)} 82 Z" fill="${hc}" ${L}/>
+        <path d="M${x(96)} 84 C${x(90)} 96 ${x(94)} 106 ${x(92)} 116 C${x(90)} 128 ${x(94)} 136 ${x(90)} 150 M${x(102)} 92 C${x(98)} 104 ${x(102)} 114 ${x(98)} 126 C${x(96)} 136 ${x(100)} 144 ${x(96)} 156"
+          stroke="${hi}" stroke-width="1.2" fill="none" opacity=".7"/>
+        <path d="M${x(88)} 112 C${x(92)} 122 ${x(86)} 132 ${x(88)} 142" stroke="${lo}" stroke-width="1.4" fill="none" opacity=".7"/>`;
+    }).join('');
     const arm = m => {
       const x = v => (m ? 240 - v : v);
       return `<path d="M${x(72)} 104 C${x(56)} 114 ${x(50)} 132 ${x(58)} 150 C${x(64)} 162 ${x(76)} 172 ${x(90)} 182 L${x(118)} 182 C${x(104)} 170 ${x(94)} 158 ${x(90)} 144 C${x(86)} 130 ${x(86)} 118 ${x(90)} 110 Z" fill="${shirt}" ${L}/>
@@ -348,11 +359,13 @@ const Art = (() => {
       <path d="M101 64 C105 78 105 94 103 102 M107 58 C109 74 109 92 109 104 M121 54 C125 70 127 90 125 106 M129 56 C135 70 137 90 135 102 M137 62 C141 74 143 86 141 96"
         stroke="${shade(hc, 0.35)}" stroke-width=".9" fill="none" opacity=".55"/>`;
     if (p.hair === 'bun') head += `<circle cx="120" cy="68" r="12" fill="${hc}" ${L}/><circle cx="120" cy="68" r="12" fill="url(#hs${id})"/>`;
+    if (p.sex === 'f') head += `<path d="M120 54 C119 70 119 90 120 106" stroke="${lo}" stroke-width="1.4" fill="none"/>
+      <path d="M118 60 C108 66 102 76 100 90 M116 66 C108 74 104 84 104 98 M122 60 C132 66 138 76 140 90 M124 66 C132 74 136 84 136 98" stroke="${hi}" stroke-width="1" fill="none" opacity=".65"/>`;
     return `<svg class="dealer-body" viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
         <radialGradient id="sp${id}" cx=".5" cy=".3" r=".6"><stop offset="0" stop-color="#ffd9a0" stop-opacity=".32"/><stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/></radialGradient>
         <linearGradient id="sh${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf8f1"/><stop offset=".6" stop-color="#e9e3d6"/><stop offset="1" stop-color="#bfb7a6"/></linearGradient>
-        <linearGradient id="vs${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0d0c10"/><stop offset=".5" stop-color="#2a2830"/><stop offset="1" stop-color="#0d0c10"/></linearGradient>
+        <linearGradient id="vs${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${shade(vest, -0.45)}"/><stop offset=".5" stop-color="${vest}"/><stop offset="1" stop-color="${shade(vest, -0.45)}"/></linearGradient>
         <radialGradient id="hs${id}" cx=".45" cy=".22" r=".7"><stop offset="0" stop-color="#fff3d6" stop-opacity=".55"/><stop offset=".35" stop-color="#fff3d6" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
         <radialGradient id="ns${id}" cx=".5" cy=".2" r=".8"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
       </defs>
@@ -366,6 +379,8 @@ const Art = (() => {
       <rect x="116.5" y="114" width="7" height="6" rx="2" fill="${p.tie || '#141414'}" ${L}/>
       ${arm(false)}${arm(true)}
       <ellipse cx="120" cy="110" rx="28" ry="10" fill="url(#ns${id})"/>
+      ${p.trim ? `<path d="M86 116 L80 182 M154 116 L160 182 M113 110 L120 146 L127 110" stroke="${p.trim}" stroke-width="1.6" fill="none" opacity=".9"/>` : ''}
+      ${locks}
       <ellipse cx="95" cy="90" rx="3.4" ry="6" fill="${s[1]}" ${L}/>
       <ellipse cx="145" cy="90" rx="3.4" ry="6" fill="${s[1]}" ${L}/>
       ${head}
@@ -513,14 +528,84 @@ const Art = (() => {
     return c.toDataURL('image/jpeg', 0.86);
   }
 
-  return { SKIN, BG, portrait, icon, dealer, hand, shade, init, posterize, posterizeCanvas };
+  /* ---------- room backdrops (original scenes), returned as CSS background values ---------- */
+  const svgURL = svg => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
+  function palmTree(x, y, h, col, lean = 0) {
+    const top = `${x + lean} ${y - h}`;
+    const fr = [[-46, -4], [-38, -20], [-20, -32], [4, -36], [26, -28], [42, -14], [46, 4], [-42, 10]]
+      .map(([dx, dy]) => `M${top} q${dx * 0.5} ${dy - 10} ${dx} ${dy + 6} q${-dx * 0.35} ${-dy * 0.2 - 4} ${-dx} ${-dy - 6} Z`).join(' ');
+    return `<path d="M${x - 3} ${y} C${x - 2} ${y - h * 0.5} ${x + lean * 0.6 - 2} ${y - h * 0.8} ${x + lean - 1.5} ${y - h} L${x + lean + 1.5} ${y - h} C${x + lean * 0.6 + 2} ${y - h * 0.8} ${x + 2} ${y - h * 0.5} ${x + 3} ${y} Z" fill="${col}"/>
+      <path d="${fr}" fill="${col}"/>`;
+  }
+
+  const SCENES = {
+    sunset: () => svgURL(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b3a8a"/><stop offset=".35" stop-color="#e2667a"/><stop offset=".62" stop-color="#ffb070"/><stop offset=".8" stop-color="#ffd59a"/><stop offset="1" stop-color="#7a3d52"/></linearGradient>
+      <radialGradient id="s"><stop offset="0" stop-color="#fff4d0"/><stop offset=".4" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffb070" stop-opacity="0"/></radialGradient></defs>
+      <rect width="400" height="800" fill="url(#k)"/>
+      <circle cx="200" cy="470" r="150" fill="url(#s)"/><circle cx="200" cy="470" r="46" fill="#fff0c8" opacity=".85"/>
+      <path d="M0 520 L0 470 L30 470 L30 440 L70 440 L70 480 L110 480 L110 420 L140 420 L140 495 L260 495 L260 430 L300 430 L300 455 L340 455 L340 410 L370 410 L370 470 L400 470 L400 520 Z" fill="#8a4a63" opacity=".75"/>
+      <rect y="520" width="400" height="280" fill="#3b2236"/>
+      <path d="M150 800 L196 520 L204 520 L250 800 Z" fill="#4c2c44"/>
+      ${palmTree(40, 560, 330, '#2c1428', 18)}${palmTree(96, 540, 250, '#3a1c33', -10)}
+      ${palmTree(330, 560, 360, '#2c1428', -22)}${palmTree(372, 545, 270, '#3a1c33', 8)}
+    </svg>`),
+    skyline: () => {
+      let b = '';
+      const xs = [0, 34, 60, 100, 128, 170, 205, 240, 270, 310, 340, 372];
+      xs.forEach((x, i) => {
+        const h = 120 + ((i * 53) % 170), w = 30 + ((i * 17) % 18);
+        b += `<rect x="${x}" y="${600 - h}" width="${w}" height="${h + 200}" fill="#1c1236"/>`;
+        for (let wy = 610 - h; wy < 590; wy += 14) for (let wx = x + 5; wx < x + w - 5; wx += 9)
+          if (((wx * 7 + wy * 3) % 5) < 2) b += `<rect x="${wx}" y="${wy}" width="4" height="6" fill="#ffd78a" opacity=".7"/>`;
+      });
+      return svgURL(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1440"/><stop offset=".45" stop-color="#7a3a8e"/><stop offset=".7" stop-color="#f08aa0"/><stop offset="1" stop-color="#2a1430"/></linearGradient>
+        <filter id="g"><feGaussianBlur stdDeviation="3"/></filter></defs>
+        <rect width="400" height="800" fill="url(#k)"/>
+        ${b}
+        <rect x="60" y="430" width="70" height="16" rx="3" fill="none" stroke="#ff5fa8" stroke-width="3" filter="url(#g)"/>
+        <rect x="60" y="430" width="70" height="16" rx="3" fill="none" stroke="#ffc2e0" stroke-width="1.2"/>
+        <circle cx="300" cy="410" r="9" fill="none" stroke="#5fe3ff" stroke-width="3" filter="url(#g)"/>
+        <circle cx="300" cy="410" r="9" fill="none" stroke="#d0f7ff" stroke-width="1.2"/>
+        <rect y="600" width="400" height="200" fill="#120c22"/>
+      </svg>`);
+    },
+    neon: () => svgURL(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+      <defs><radialGradient id="k" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#1d3a8a"/><stop offset=".6" stop-color="#0d1a4a"/><stop offset="1" stop-color="#050a20"/></radialGradient>
+      <filter id="g"><feGaussianBlur stdDeviation="4"/></filter></defs>
+      <rect width="400" height="800" fill="url(#k)"/>
+      ${[150, 210, 270].map((ry, i) => `<ellipse cx="200" cy="${120 + i * 30}" rx="${260 + i * 40}" ry="${ry * 0.35}" fill="none" stroke="#3ab8ff" stroke-width="5" opacity="${0.55 - i * 0.12}" filter="url(#g)"/>
+        <ellipse cx="200" cy="${120 + i * 30}" rx="${260 + i * 40}" ry="${ry * 0.35}" fill="none" stroke="#bfe9ff" stroke-width="1.2" opacity="${0.6 - i * 0.15}"/>`).join('')}
+      ${[40, 120, 280, 360].map(x => `<rect x="${x - 10}" y="60" width="20" height="130" rx="6" fill="#0a1236"/><ellipse cx="${x}" cy="60" rx="18" ry="6" fill="#58c8ff" opacity=".6" filter="url(#g)"/>`).join('')}
+      <path d="M0 420 C120 380 280 380 400 420 L400 800 L0 800 Z" fill="#0a1236" opacity=".8"/>
+    </svg>`),
+    lounge: () => svgURL(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0a0c"/><stop offset=".5" stop-color="#5a1418"/><stop offset="1" stop-color="#1a0606"/></linearGradient>
+      <filter id="g"><feGaussianBlur stdDeviation="6"/></filter></defs>
+      <rect width="400" height="800" fill="url(#k)"/>
+      ${[[40, 80, 22], [110, 140, 14], [330, 90, 26], [270, 170, 12], [370, 230, 16], [60, 240, 12], [200, 60, 10]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffb35a" opacity=".45" filter="url(#g)"/>`).join('')}
+      <path d="M-20 360 C40 300 120 290 160 330 L160 420 L-20 420 Z" fill="#7a1e22"/><path d="M-20 360 C40 300 120 290 160 330" stroke="#d8a14a" stroke-width="3" fill="none"/>
+      <path d="M420 360 C360 300 280 290 240 330 L240 420 L420 420 Z" fill="#7a1e22"/><path d="M420 360 C360 300 280 290 240 330" stroke="#d8a14a" stroke-width="3" fill="none"/>
+      <rect y="420" width="400" height="380" fill="#1c0808"/>
+    </svg>`),
+    carpet: () => null
+  };
+
+  function scene(name) {
+    const f = SCENES[name];
+    return f ? f() : null;
+  }
+
+  return { SKIN, BG, portrait, icon, dealer, hand, shade, init, posterize, posterizeCanvas, scene, SCENES: Object.keys(SCENES) };
 })();
 
 /* ---------- the cast (all fictional) ---------- */
 const DEALERS = {
-  vincent: { name: 'Vincent', sex: 'm', skin: 'fair', hair: 'slick', hairColor: '#2b1c14', extras: ['stubble'], mood: 'stern', eyes: '#3d5a6e' },
-  rosie: { name: 'Rosie', sex: 'f', skin: 'light', hair: 'bun', hairColor: '#8a2f1a', lips: '#b8333f', eyes: '#3f6b4a', extras: ['stud'], garter: '#1f3f73' },
-  otis: { name: 'Otis', sex: 'm', skin: 'deep', hair: 'buzz', hairColor: '#141010', extras: ['beard'], mood: 'stern', eyes: '#3a2416', garter: '#2b6b3f' }
+  scarlett: { name: 'Scarlett', sex: 'f', skin: 'light', hair: 'long', hairColor: '#d9a94e', vest: '#3b2460', trim: '#d8b660', tie: '#1a1020', garter: '#3b2460' },
+  rosie: { name: 'Rosie', sex: 'f', skin: 'fair', hair: 'long', hairColor: '#8a3a1c', vest: '#1c1b22', trim: '#c9a24a', tie: '#141414', garter: '#7a1b25' },
+  nina: { name: 'Nina', sex: 'f', skin: 'tan', hair: 'long', hairColor: '#21150f', vest: '#5a1626', trim: '#d8b660', tie: '#141414', garter: '#5a1626' }
 };
 
 const CHARACTERS = [

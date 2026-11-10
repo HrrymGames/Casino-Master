@@ -34,7 +34,7 @@ class Kaboo extends GameBase {
       ${UI.topbar('Kaboo', { rules: true })}
       <div class="stage">
         <div class="lamp"></div>
-        ${UI.dealer('otis')}
+        ${UI.dealer()}
         <main class="table felt">
           <div class="kb-board js-board"></div>
         </main>

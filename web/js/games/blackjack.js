@@ -38,7 +38,7 @@ class Blackjack extends GameBase {
       ${UI.topbar('Blackjack', { rules: true })}
       <div class="stage">
         <div class="lamp"></div>
-        ${UI.dealer('vincent')}
+        ${UI.dealer()}
         <main class="table felt">
           <div class="discard-tray js-discard"><div class="tray-stack"></div><span>Discard</span></div>
           <div class="shoe js-shoe"><div class="shoe-box"><div class="shoe-fill"></div></div><span class="js-shoe-lbl">6 decks</span></div>

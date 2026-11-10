@@ -154,8 +154,10 @@ const UI = {
   },
 
   /* ---------- artwork (see art.js) ---------- */
-  dealer(key = 'vincent') {
-    const p = DEALERS[key] || DEALERS.vincent;
+  dealer(key = null) {
+    const keys = Object.keys(DEALERS);
+    if (!DEALERS[key]) key = keys[randInt(keys.length)];
+    const p = DEALERS[key];
     return `<div class="dealer" data-dealer="${key}">${Art.dealer(p)}${Art.hand(p, true)}${Art.hand(p, false)}<div class="dealer-name">${p.name}</div></div>`;
   },
 

@@ -32,7 +32,7 @@ class HiLo extends GameBase {
       ${UI.topbar('Higher or Lower', { rules: true })}
       <div class="stage">
         <div class="lamp"></div>
-        ${UI.dealer('rosie')}
+        ${UI.dealer()}
         <main class="table felt">
           <div class="hl-print">HIGHER <span>or</span> LOWER<small>Aces high · same rank pushes</small></div>
           <div class="hl-row js-row">${Array.from({ length: 10 }, (_, i) => `<div class="hl-slot" data-i="${i}"><span>${i + 1}</span></div>`).join('')}</div>

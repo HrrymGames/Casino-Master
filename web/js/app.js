@@ -224,6 +224,14 @@ const App = {
     this.game = g.make(root);
     this.game.key = key;
     this.game.mount();
+    // a different room each time you sit down
+    const room = root.querySelector('.game');
+    const name = pick(Art.SCENES);
+    const bg = Art.scene(name);
+    if (room && bg) {
+      room.dataset.scene = name;
+      room.style.background = `radial-gradient(ellipse 120% 90% at 50% 45%, transparent 45%, rgba(0,0,0,.6) 100%), ${bg} center top / cover no-repeat, #0b0a14`;
+    }
   },
 
   async leaveGame() {
