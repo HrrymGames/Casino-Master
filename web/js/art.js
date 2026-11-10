@@ -598,7 +598,29 @@ const Art = (() => {
     return f ? f() : null;
   }
 
-  return { SKIN, BG, portrait, icon, dealer, hand, shade, init, posterize, posterizeCanvas, scene, SCENES: Object.keys(SCENES) };
+  /* load a photo, crop to a portrait 3:4 from the top, resize; returns JPEG data URL */
+  function dealerPhoto(file, w = 480) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const h = Math.round(w * 4 / 3);
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const g = c.getContext('2d');
+        const scale = Math.max(w / img.width, h / img.height);
+        const sw = w / scale, sh = h / scale;
+        const sx = (img.width - sw) / 2, sy = Math.max(0, Math.min(img.height - sh, (img.height - sh) * 0.1));
+        g.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  return { dealerPhoto, SKIN, BG, portrait, icon, dealer, hand, shade, init, posterize, posterizeCanvas, scene, SCENES: Object.keys(SCENES) };
 })();
 
 /* ---------- the cast (all fictional) ---------- */

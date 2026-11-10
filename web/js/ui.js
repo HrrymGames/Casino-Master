@@ -155,6 +155,11 @@ const UI = {
 
   /* ---------- artwork (see art.js) ---------- */
   dealer(key = null) {
+    const photo = Store.data && Store.data.settings.dealerPhoto;
+    if (photo) {
+      return `<div class="dealer photo-dealer"><div class="dp-frame"><img src="${photo}" alt=""></div>
+        <div class="dp-deck"><div class="card deckback"><div class="card-inner"><div class="card-face back">${Cards.BACK}</div></div></div></div></div>`;
+    }
     const keys = Object.keys(DEALERS);
     if (!DEALERS[key]) key = keys[randInt(keys.length)];
     const p = DEALERS[key];
@@ -163,6 +168,18 @@ const UI = {
 
   /* the dealing hand reaches towards `target` (an element) and comes back */
   dealerDeal(root, side = 'r', target = null) {
+    const pd = root && root.querySelector('.photo-dealer');
+    if (pd) {
+      // photo dealer: lean towards the card and flick the deck
+      let dx = 0;
+      if (target && target.getBoundingClientRect) {
+        const a = pd.getBoundingClientRect(), b = target.getBoundingClientRect();
+        dx = Math.max(-14, Math.min(14, ((b.left + b.width / 2) - (a.left + a.width / 2)) * 0.06));
+      }
+      pd.querySelector('.dp-frame').animate([{ transform: 'none' }, { transform: `translate(${dx}px, 5px) rotate(${dx * 0.15}deg) scale(1.02)`, offset: 0.4 }, { transform: 'none' }], { duration: 380, easing: 'ease-out' });
+      pd.querySelector('.dp-deck').animate([{ transform: 'none' }, { transform: `translate(${dx * 1.6}px, 10px) rotate(${dx * 0.6}deg)`, offset: 0.4 }, { transform: 'none' }], { duration: 380, easing: 'ease-out' });
+      return;
+    }
     const h = root && root.querySelector('.dealer .hand-' + side);
     if (!h) return;
     let dx = side === 'r' ? -12 : 12, dy = 26;
@@ -181,11 +198,17 @@ const UI = {
 
   /* where dealt cards come from: the deck in the dealer's hand, or a fallback */
   deckSource(root, fallback) {
-    return (root && root.querySelector('.dealer .hand-l')) || fallback;
+    return (root && (root.querySelector('.dealer .dp-deck') || root.querySelector('.dealer .hand-l'))) || fallback;
   },
 
   /* riffle shuffle: hands come together a few times */
   dealerShuffle(root) {
+    const deck = root && root.querySelector('.dealer .dp-deck');
+    if (deck) {
+      [0, 260, 520].forEach(t => setTimeout(() => Sound.card(), t));
+      return deck.animate([{ transform: 'none' }, { transform: 'translateX(-10px) rotate(-8deg)' }, { transform: 'translateX(10px) rotate(8deg)' }, { transform: 'none' }],
+        { duration: 260, iterations: 3 }).finished.catch(() => {});
+    }
     const l = root && root.querySelector('.dealer .hand-l');
     const r = root && root.querySelector('.dealer .hand-r');
     if (!l || !r) return Promise.resolve();
