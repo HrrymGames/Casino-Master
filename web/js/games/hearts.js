@@ -115,15 +115,16 @@ class Hearts extends GameBase {
     if (this.stake < 10) return UI.toast('Minimum stake is £10');
     if (!Bank.take(this.stake)) return UI.toast('Not enough in the bank');
     Sound.click();
-    const chars = shuffle(CHARACTERS.slice());
+    const chars = UI.opponents(3);
     this.players = [
-      { name: Store.current.name, ai: false, char: { style: 'm', skin: '#e8b48c', hair: '#2b1d14', shirt: '#b8232b' } },
+      { name: Store.current.name, ai: false, char: UI.playerChar() },
       { name: chars[0].name, ai: true, char: chars[0] },
       { name: chars[1].name, ai: true, char: chars[1] },
       { name: chars[2].name, ai: true, char: chars[2] }
     ];
     this.players.forEach(p => { p.total = 0; p.hand = []; p.taken = []; });
     this.handNo = 0;
+    this.players.forEach(p => { if (p.ai) UI.npcStake(p.name, this.stake); });
     this.buildBoard();
     this.newHand();
   }
@@ -135,16 +136,15 @@ class Hearts extends GameBase {
     b.innerHTML = `
       ${this.players.slice(1).map((p, k) => `
         <div class="ht-seat" data-p="${k + 1}" style="grid-area:${seatName[k + 1]}">
-          ${UI.avatar(p.char, 'sm')}
-          <div class="seat-info"><div class="seat-name">${esc(p.name)}</div><div class="seat-score js-score"></div></div>
+          ${UI.plate(p.char, money(UI.npcBank(p.name)))}
+          <div class="seat-info"><div class="seat-score js-score"></div><div class="seat-bet js-bet">${UI.chip(10, 'mini')}<span>${money(this.stake)}</span></div></div>
           <div class="seat-cards"><div class="card mini"><div class="card-inner"><div class="card-face back">${Cards.BACK}</div></div></div><span class="js-count">13</span></div>
         </div>`).join('')}
       <div class="ht-trick" style="grid-area:trick">
         <div class="trick-slot s0"></div><div class="trick-slot s1"></div><div class="trick-slot s2"></div><div class="trick-slot s3"></div>
-        <div class="trick-msg js-msg"></div>
       </div>
       <div class="ht-me" style="grid-area:me">
-        <div class="me-bar"><span class="seat-name">${esc(this.players[0].name)}</span><span class="seat-score js-myscore"></span><span class="broken-ind js-broken"></span></div>
+        <div class="me-bar">${UI.plate(this.players[0].char, money(Bank.balance), 'me-plate')}<span class="seat-score js-myscore"></span><span class="seat-bet">${UI.chip(10, 'mini')}<span>${money(this.stake)}</span></span><span class="broken-ind js-broken"></span></div>
         <div class="ht-hand js-hand"></div>
       </div>`;
     this.$('.js-hand').addEventListener('click', e => this.onHandClick(e));
@@ -349,6 +349,12 @@ class Hearts extends GameBase {
     const iWon = winners.includes(0);
     const share = round2(pot / winners.length);
     if (iWon) Bank.give(share);
+    winners.forEach(w => { if (this.players[w].ai) UI.npcAdjust(this.players[w].name, share); });
+    this.players.forEach((p, i) => {
+      const seat = i === 0 ? this.$('.me-bar') : this.root.querySelector(`.ht-seat[data-p="${i}"]`);
+      const m = seat && seat.querySelector('.js-money');
+      if (m) m.textContent = money(i === 0 ? Bank.balance : UI.npcBank(p.name));
+    });
     const net = round2((iWon ? share : 0) - this.stake);
     Bank.record('hearts', net, `finished on ${totals[0]} pts (best ${best})`);
     if (iWon) { Sound.bigWin(); Native.haptic('success'); } else Sound.lose();
@@ -410,7 +416,7 @@ class Hearts extends GameBase {
   }
 
   /* ---------------- rendering ---------------- */
-  setMsg(t) { const m = this.$('.js-msg'); if (m) m.innerHTML = t; }
+  setMsg(t) { this.msg = t; const m = this.$('.js-msg'); if (m) m.innerHTML = t; }
 
   renderSeats() {
     if (!this.players) return;
@@ -472,8 +478,8 @@ class Hearts extends GameBase {
       row.querySelector('.js-lobby').onclick = () => App.go('lobby');
       row.querySelector('.js-again').onclick = () => this.showSetup();
     } else {
-      c.appendChild(el(`<div class="ctrl-info">Hand ${this.handNo + 1} · playing to ${this.target} · pot ${money(this.stake * 4)}</div>`));
-      const row = el('<div class="btn-row"><button class="btn js-scores">Scores</button></div>');
+      c.appendChild(el(`<div class="ctrl-info js-msg">${this.msg || ''}</div>`));
+      const row = el(`<div class="btn-row"><button class="btn js-scores">Scores<small>Hand ${this.handNo + 1} · to ${this.target} · pot ${money(this.stake * 4)}</small></button></div>`);
       c.appendChild(row);
       row.querySelector('.js-scores').onclick = () => {
         Sound.click();

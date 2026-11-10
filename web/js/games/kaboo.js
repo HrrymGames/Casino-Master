@@ -93,9 +93,9 @@ class Kaboo extends GameBase {
     if (!Bank.take(this.stake)) return UI.toast('Not enough in the bank');
     Sound.click();
     const n = this.opponents + 1;
-    const chars = shuffle(CHARACTERS.slice());
+    const chars = UI.opponents(this.opponents);
     const me = Store.current;
-    this.players = [{ name: me.name, ai: false, slots: [], char: { style: 'm', skin: '#e8b48c', hair: '#2b1d14', shirt: '#b8232b' } }];
+    this.players = [{ name: me.name, ai: false, slots: [], char: UI.playerChar() }];
     for (let i = 1; i < n; i++) {
       const ch = chars[i - 1];
       this.players.push({
@@ -110,16 +110,18 @@ class Kaboo extends GameBase {
     this.kabooBy = null;
     this.turnsTaken = 0;
     this.pot = this.stake * n;
+    this.players.forEach(p => { if (p.ai) UI.npcStake(p.name, this.stake); });
     this.els.clear(); this.shown.clear(); this.lifted.clear();
     this.sel = null; this.snapMode = false;
     this.phase = 'dealing';
     this.buildBoard();
     this.renderControls();
+    await UI.dealerShuffle(this.root);
 
     for (let round = 0; round < 4; round++) {
       for (let p = 0; p < n; p++) {
         this.mutate(() => { this.players[p].slots.push(this.deck.pop()); });
-        UI.dealerDeal(this.root, p % 2 ? 'l' : 'r');
+        UI.dealerDeal(this.root, 'r', this.root.querySelector(`.kb-seat[data-p="${p}"] .kb-grid`));
         await this.wait(130);
       }
     }
@@ -144,6 +146,22 @@ class Kaboo extends GameBase {
     this.startTurn();
   }
 
+  /* ---------------- money on the table ---------------- */
+  betChip() { return [...CHIPS].reverse().find(c => c.v <= this.stake) ? [...CHIPS].reverse().find(c => c.v <= this.stake).v : 10; }
+
+  updatePlates(winners = [], share = 0) {
+    this.players.forEach((p, i) => {
+      const seat = this.root.querySelector(`.kb-seat[data-p="${i}"]`);
+      if (!seat) return;
+      seat.querySelector('.js-money').textContent = money(i === 0 ? Bank.balance : UI.npcBank(p.name));
+      const bet = seat.querySelector('.js-bet');
+      if (winners.length) {
+        bet.classList.toggle('won', winners.includes(i));
+        bet.querySelector('span').textContent = winners.includes(i) ? '+' + money(share - this.stake) : '−' + money(this.stake);
+      }
+    });
+  }
+
   /* ---------------- board ---------------- */
   buildBoard() {
     const b = this.$('.js-board');
@@ -151,14 +169,15 @@ class Kaboo extends GameBase {
     b.innerHTML = `
       ${this.players.map((p, i) => `
         <div class="kb-seat ${i === 0 ? 'me' : 'opp'}" data-p="${i}" style="grid-area:${i === 0 ? 'me' : this.seats[i - 1]}">
-          <div class="seat-head">${UI.avatar(p.char, 'sm')}<div class="seat-name">${esc(p.name)}</div><div class="seat-badge"></div></div>
+          <div class="seat-head">${UI.plate(p.char, money(i === 0 ? Bank.balance : UI.npcBank(p.name)))}<div class="seat-badge"></div></div>
+          <div class="seat-bet js-bet">${UI.chip(this.betChip(), 'mini')}<span>${money(this.stake)}</span></div>
           <div class="kb-grid"></div>
         </div>`).join('')}
       <div class="kb-pile" style="grid-area:pile">
         <div class="pile-spot deck js-deck"><div class="card deckback"><div class="card-inner"><div class="card-face back">${Cards.BACK}</div></div></div><span class="pile-lbl js-deckn"></span></div>
         <div class="pile-spot drawn js-drawn"><span class="pile-lbl">Drawn</span></div>
         <div class="pile-spot discard js-disc"><span class="pile-lbl">Discard</span></div>
-        <div class="pot-pill">Pot ${money(this.pot)}</div>
+        <div class="pot-pill"><small>POT</small>${money(this.pot)}</div>
       </div>`;
     this.$('.js-deck').onclick = () => this.humanDraw();
   }
@@ -736,6 +755,8 @@ class Kaboo extends GameBase {
     const share = round2(this.pot / winners.length);
     const iWon = winners.includes(0);
     if (iWon) Bank.give(share);
+    winners.forEach(w => { if (this.players[w].ai) UI.npcAdjust(this.players[w].name, share); });
+    this.updatePlates(winners, share);
     const net = round2((iWon ? share : 0) - this.stake);
     Bank.record('kaboo', net, `scored ${scores[0]} (best ${best}) · ${this.players.length} players`);
     this.phase = 'over';

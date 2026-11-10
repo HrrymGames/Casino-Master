@@ -23,6 +23,7 @@ const App = {
   start() {
     Store.load();
     Cards.injectSprite();
+    Art.init();
     document.addEventListener('gesturestart', e => e.preventDefault());
     document.addEventListener('dblclick', e => e.preventDefault());
     this.go('title');
@@ -91,7 +92,10 @@ const App = {
       }
     });
     if (name !== '__ok') return;
+    const look = await UI.pickCharacter({ avatar: randInt(2) }) || { avatar: 0, photo: null };
     const save = Store.newSave(this._nameModal.dataset.name || '');
+    save.avatar = look.avatar; save.photo = look.photo;
+    Store.persist();
     Sound.win();
     UI.banner(`Welcome, ${esc(save.name)}!`, 'gold', 1300);
     this.go('lobby');
@@ -105,6 +109,7 @@ const App = {
       <div class="save-list">
         ${saves.length ? saves.map(s => `
           <div class="save-row ${s.balance < 10 ? 'bust' : ''}" data-id="${s.id}">
+            ${UI.avatar(Object.assign({}, CHARACTERS[s.avatar || 0], { photo: s.photo }), 'save-av')}
             <div class="save-main">
               <div class="save-name">${esc(s.name)}</div>
               <div class="save-meta">Played ${timeAgo(s.updated)} · ${s.stats.rounds} rounds · Peak ${money(s.stats.peak)}</div>
@@ -148,6 +153,8 @@ const App = {
         <button class="tb-btn js-sound">${Store.data.settings.sound ? ICONS.soundOn : ICONS.soundOff}</button>
       </header>
       <div class="lobby-scroll">
+        <button class="player-card js-look">${UI.avatar(UI.playerChar(), 'big')}
+          <div><div class="pc-name">${esc(s.name)}</div><div class="pc-sub">Tap to change your look</div></div></button>
         <div class="lobby-stats">
           <div><span>Profit</span><b class="${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '+' : ''}${money(net)}</b></div>
           <div><span>Peak</span><b>${money(st.peak)}</b></div>
@@ -178,6 +185,14 @@ const App = {
     </div>`;
     UI.bindTopbar(root, { onBack: () => this.go('title') });
     $('.js-saves', root).onclick = () => { Sound.click(); this.go('load'); };
+    $('.js-look', root).onclick = async () => {
+      Sound.click();
+      const look = await UI.pickCharacter({ avatar: s.avatar, photo: s.photo });
+      if (!look) return;
+      s.avatar = look.avatar; s.photo = look.photo;
+      Store.persist();
+      this.go('lobby');
+    };
     $('.js-haptics', root).onchange = e => Store.setting('haptics', e.target.checked);
     const mw = $('.mini-wheel', root);
     if (mw) Roulette.drawWheel(mw, isLandscape() ? 110 : 96);

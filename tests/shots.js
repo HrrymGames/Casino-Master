@@ -21,7 +21,37 @@ fs.mkdirSync(OUT, { recursive: true });
     await page.waitForTimeout(300);
     return page;
   }
-  const shot = async (page, name) => { await page.screenshot({ path: path.join(OUT, name + '.png') }); };
+  const overlaps = [];
+  const shot = async (page, name) => {
+    await page.screenshot({ path: path.join(OUT, name + '.png') });
+    const found = await page.evaluate(() => {
+      const vis = e => { const r = e.getBoundingClientRect(); if (r.width <= 2 || r.height <= 2) return null; if (e.checkVisibility && !e.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return null; for (let a = e; a; a = a.parentElement) if (+getComputedStyle(a).opacity < 0.05) return null; return r; };
+      const inter = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+      const label = e => (e.className && e.className.baseVal === undefined ? '.' + String(e.className).trim().split(/\s+/).join('.') : e.tagName) + (e.textContent ? ` "${e.textContent.trim().slice(0, 24)}"` : '');
+      // text-bearing leaf elements (not inside cards, chips or the modal)
+      const texts = [...document.querySelectorAll('#screen *')].filter(e =>
+        [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && !e.closest('.card, .chip, .cell-chip, svg, .banner'));
+      const solids = [...document.querySelectorAll('#screen .card, #screen .chip-stack, #screen .dealer .hand, #screen .cell-chip, #screen .avatar')];
+      const out = [];
+      for (const t of texts) {
+        const a = vis(t); if (!a) continue;
+        for (const s of solids) {
+          if (s.contains(t) || t.contains(s)) continue;
+          const b = vis(s); if (!b) continue;
+          const area = inter(a, b);
+          if (area > a.width * a.height * 0.15) out.push(`${label(t)} under ${label(s)}`);
+        }
+      }
+      // cards from different containers colliding
+      const cards = [...document.querySelectorAll('#screen .card')].filter(c => !c.closest('.ht-hand, .js-disc, .cards, .tile-art, .title-art'));
+      for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) {
+        const a = vis(cards[i]), b = vis(cards[j]);
+        if (a && b && inter(a, b) > a.width * a.height * 0.1) out.push(`card collision ${label(cards[i].parentNode)} / ${label(cards[j].parentNode)}`);
+      }
+      return [...new Set(out)];
+    });
+    if (found.length) overlaps.push(`${name}:\n  ` + found.join('\n  '));
+  };
 
   for (const [orient, w, h] of [['portrait', 393, 759], ['landscape', 734, 372]]) {
     const page = await newPage(w, h);
@@ -29,6 +59,10 @@ fs.mkdirSync(OUT, { recursive: true });
     await page.click('.js-new');
     await page.waitForTimeout(400);
     await page.fill('.js-name', 'Harry');
+    await page.click('.modal-btns .btn.gold');
+    await page.waitForTimeout(700);
+    await shot(page, `${orient}-02a-pick-look`);
+    await page.click('.ap[data-i="0"]');
     await page.click('.modal-btns .btn.gold');
     await page.waitForTimeout(1600);
     await shot(page, `${orient}-02-lobby`);
@@ -128,4 +162,5 @@ fs.mkdirSync(OUT, { recursive: true });
   }
   await browser.close();
   console.log(errors.length ? 'ERRORS:\n' + errors.join('\n') : 'No page errors');
+  console.log(overlaps.length ? 'OVERLAPS:\n' + overlaps.join('\n') : 'No overlaps found');
 })();

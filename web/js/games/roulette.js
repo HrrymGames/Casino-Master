@@ -224,6 +224,7 @@ class Roulette extends GameBase {
     $$('.rl-cell', this.root).forEach(c => {
       const amt = this.bets[c.dataset.bet] || 0;
       let chip = c.querySelector('.cell-chip');
+      c.classList.toggle('has-chip', !!amt);
       if (!amt) { if (chip) chip.remove(); return; }
       const v = [...CHIPS].reverse().find(x => x.v <= amt) || CHIPS[0];
       const html = `<div class="cell-chip" style="--chip:${v.c}"><span>${shortMoney(amt)}</span></div>`;

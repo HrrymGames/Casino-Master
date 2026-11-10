@@ -56,6 +56,7 @@ class HiLo extends GameBase {
     this.$('.js-mult').textContent = '×' + (this.mult || 1).toFixed(2);
     this.$('.js-pay').textContent = this.phase === 'play' ? money(round2(this.stake * this.mult)) : '—';
     this.$('.js-betspot').classList.toggle('hidden', this.phase !== 'bet');
+    this.$('.js-betspot').classList.toggle('has', this.stake > 0);
     this.$('.js-betstack').innerHTML = UI.chipStack(this.stake);
   }
 
@@ -118,14 +119,16 @@ class HiLo extends GameBase {
     old.forEach(c => c.remove());
     $$('.hl-slot', this.root).forEach(s => s.className = 'hl-slot');
     this.deck = Cards.newDeck(1);
+    await UI.dealerShuffle(this.root);
     const dealerEl = this.$('.dealer');
     for (let i = 0; i < 10; i++) {
       const slot = this.$(`.hl-slot[data-i="${i}"]`);
       const ce = Cards.el(null, false);
       slot.appendChild(ce);
+      slot.classList.add('dealt');
       Sound.card();
-      UI.dealerDeal(this.root, i % 2 ? 'l' : 'r');
-      flyFrom(ce, dealerEl, { duration: 300, scale: 0.4 });
+      UI.dealerDeal(this.root, 'r', slot);
+      flyFrom(ce, UI.deckSource(this.root, dealerEl), { duration: 320, scale: 0.5 });
       await this.wait(80);
     }
     await this.wait(350);
@@ -148,7 +151,7 @@ class HiLo extends GameBase {
   }
 
   async guess(dir) {
-    if (this.phase !== 'play' || this.guessing) return;
+    if (this.phase !== 'play' || this.guessing || this.idx >= 9) return;
     this.guessing = true;
     const o = HL.odds(this.cur, this.deck);
     const m = dir === 'hi' ? o.hi : o.lo;
@@ -158,7 +161,7 @@ class HiLo extends GameBase {
     const prev = this.cur;
     const next = this.deck.pop();
     this.idx++;
-    UI.dealerDeal(this.root, 'r');
+    UI.dealerDeal(this.root, 'r', this.$(`.hl-slot[data-i="${this.idx}"]`));
     const slot = this.revealAt(this.idx, next);
     await this.wait(480);
     const a = HL.rank(prev), b = HL.rank(next);

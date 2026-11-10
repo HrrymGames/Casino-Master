@@ -19,21 +19,6 @@ const CHIPS = [
   { v: 25000, c: '#c0185d' }
 ];
 
-const DEALERS = {
-  vincent: { name: 'Vincent', style: 'm', skin: '#e8b48c', hair: '#2b1d14', visor: '#2f9a5a', tie: '#b8232b' },
-  rosie: { name: 'Rosie', style: 'f', skin: '#f0c4a0', hair: '#8a2f1a', visor: '#c23b3b', tie: '#1f1f22' },
-  otis: { name: 'Otis', style: 'm', skin: '#8d5a3c', hair: '#151515', visor: '#2a6fb8', tie: '#d4a422' }
-};
-
-const CHARACTERS = [
-  { name: 'Lucky Lou', style: 'm', skin: '#e8b48c', hair: '#3a2a1e', shirt: '#2a62c4' },
-  { name: 'Vegas Vi', style: 'f', skin: '#f2c8a6', hair: '#e2b84a', shirt: '#c0185d' },
-  { name: 'The Duke', style: 'm', skin: '#7d4e33', hair: '#141414', shirt: '#6c2fa6' },
-  { name: 'Ruby', style: 'f', skin: '#c98d66', hair: '#1c1c1c', shirt: '#b8232b' },
-  { name: 'Frankie', style: 'm', skin: '#f0c09a', hair: '#7a4a24', shirt: '#2b8a48' },
-  { name: 'Dolores', style: 'f', skin: '#e3a986', hair: '#5b2a17', shirt: '#d8a31f' }
-];
-
 const UI = {
   icons: ICONS,
 
@@ -168,90 +153,130 @@ const UI = {
     UI._tt = setTimeout(() => t.classList.remove('show'), ms);
   },
 
-  /* ---------- artwork ---------- */
-
-  head(p, cx = 100, cy = 56) {
-    // p: {style, skin, hair}
-    const hairBack = p.style === 'f'
-      ? `<path d="M${cx - 30} ${cy + 18} C${cx - 36} ${cy - 20} ${cx - 22} ${cy - 36} ${cx} ${cy - 36} C${cx + 22} ${cy - 36} ${cx + 36} ${cy - 20} ${cx + 30} ${cy + 18} C${cx + 26} ${cy + 26} ${cx + 16} ${cy + 22} ${cx + 18} ${cy + 10} L${cx - 18} ${cy + 10} C${cx - 16} ${cy + 22} ${cx - 26} ${cy + 26} ${cx - 30} ${cy + 18} Z" fill="${p.hair}"/>`
-      : '';
-    const hairTop = p.style === 'f'
-      ? `<path d="M${cx - 24} ${cy - 6} C${cx - 24} ${cy - 30} ${cx + 24} ${cy - 34} ${cx + 25} ${cy - 4} C${cx + 14} ${cy - 18} ${cx - 2} ${cy - 22} ${cx - 24} ${cy - 6} Z" fill="${p.hair}"/>`
-      : `<path d="M${cx - 23} ${cy - 2} C${cx - 26} ${cy - 30} ${cx + 26} ${cy - 34} ${cx + 23} ${cy - 2} C${cx + 21} ${cy - 16} ${cx + 8} ${cy - 21} ${cx - 3} ${cy - 21} C${cx - 12} ${cy - 21} ${cx - 21} ${cy - 15} ${cx - 23} ${cy - 2} Z" fill="${p.hair}"/>
-         <path d="M${cx - 4} ${cy - 21} C${cx - 8} ${cy - 16} ${cx - 14} ${cy - 13} ${cx - 21} ${cy - 10}" stroke="#ffffff" stroke-opacity=".18" stroke-width="1.5" fill="none"/>`;
-    const face = p.style === 'f'
-      ? `<path d="M${cx - 6} ${cy + 15} Q${cx} ${cy + 19} ${cx + 6} ${cy + 15} Q${cx} ${cy + 13} ${cx - 6} ${cy + 15} Z" fill="#b8232b"/>
-         <path d="M${cx - 14} ${cy - 1} q4 -3 8 0 M${cx + 6} ${cy - 1} q4 -3 8 0" stroke="#2a1a12" stroke-width="1.3" fill="none"/>`
-      : `<path d="M${cx - 13} ${cy + 12} C${cx - 8} ${cy + 7} ${cx - 2} ${cy + 8} ${cx} ${cy + 10} C${cx + 2} ${cy + 8} ${cx + 8} ${cy + 7} ${cx + 13} ${cy + 12} C${cx + 15} ${cy + 9} ${cx + 16} ${cy + 7} ${cx + 15} ${cy + 5} C${cx + 12} ${cy + 13} ${cx + 4} ${cy + 13} ${cx} ${cy + 12} C${cx - 4} ${cy + 13} ${cx - 12} ${cy + 13} ${cx - 15} ${cy + 5} C${cx - 16} ${cy + 7} ${cx - 15} ${cy + 9} ${cx - 13} ${cy + 12} Z" fill="${p.hair}"/>
-         <path d="M${cx - 14} ${cy - 3} h8 M${cx + 6} ${cy - 3} h8" stroke="${p.hair}" stroke-width="2.2" stroke-linecap="round"/>`;
-    return `${hairBack}
-      <ellipse cx="${cx - 22}" cy="${cy + 3}" rx="4" ry="6" fill="${p.skin}"/>
-      <ellipse cx="${cx + 22}" cy="${cy + 3}" rx="4" ry="6" fill="${p.skin}"/>
-      <ellipse cx="${cx}" cy="${cy}" rx="21" ry="25" fill="${p.skin}"/>
-      <ellipse cx="${cx}" cy="${cy + 4}" rx="3" ry="2" fill="#000" opacity=".12"/>
-      <ellipse cx="${cx - 8}" cy="${cy + 1}" rx="2.2" ry="2.6" fill="#1d1410"/>
-      <ellipse cx="${cx + 8}" cy="${cy + 1}" rx="2.2" ry="2.6" fill="#1d1410"/>
-      <ellipse cx="${cx - 13}" cy="${cy + 9}" rx="4" ry="2.4" fill="#e0605a" opacity=".22"/>
-      <ellipse cx="${cx + 13}" cy="${cy + 9}" rx="4" ry="2.4" fill="#e0605a" opacity=".22"/>
-      ${face}${hairTop}`;
-  },
-
+  /* ---------- artwork (see art.js) ---------- */
   dealer(key = 'vincent') {
     const p = DEALERS[key] || DEALERS.vincent;
-    const visor = `<path d="M74 40 C84 30 116 30 126 40 L126 44 C116 36 84 36 74 44 Z" fill="${p.visor}"/>
-      <path d="M70 44 C86 34 114 34 130 44 C120 54 80 54 70 44 Z" fill="${p.visor}" opacity=".78"/>
-      <path d="M72 44 C88 37 112 37 128 44" stroke="#fff" stroke-opacity=".35" stroke-width="1" fill="none"/>`;
-    return `<div class="dealer" data-dealer="${key}">
-      <svg class="dealer-body" viewBox="0 0 200 150" aria-hidden="true">
-        <ellipse cx="100" cy="150" rx="86" ry="14" fill="#000" opacity=".35"/>
-        <path d="M18 150 C22 112 42 98 70 92 L130 92 C158 98 178 112 182 150 Z" fill="#f4efe4"/>
-        <path d="M28 150 C30 128 38 118 48 112 L52 150 Z M172 150 C170 128 162 118 152 112 L148 150 Z" fill="#e3dccd"/>
-        <rect x="30" y="122" width="22" height="7" rx="2" fill="${p.tie}" transform="rotate(-12 41 125)"/>
-        <rect x="148" y="122" width="22" height="7" rx="2" fill="${p.tie}" transform="rotate(12 159 125)"/>
-        <path d="M56 150 L60 100 L84 92 L100 128 L116 92 L140 100 L144 150 Z" fill="#16161a"/>
-        <path d="M84 92 L100 128 L116 92 Z" fill="#fbf8f0"/>
-        <path d="M100 128 L100 150" stroke="#2a2a30" stroke-width="1"/>
-        <circle cx="94" cy="134" r="2.2" fill="#e7c873"/><circle cx="94" cy="145" r="2.2" fill="#e7c873"/>
-        <path d="M86 96 L98 101 L86 106 Z M114 96 L102 101 L114 106 Z" fill="${p.tie}"/>
-        <rect x="96" y="98" width="8" height="6" rx="2" fill="${p.tie}"/>
-        <rect x="92" y="76" width="16" height="16" fill="${p.skin}"/>
-        ${UI.head(p, 100, 56)}
-        ${visor}
-      </svg>
-      <svg class="hand hand-l" viewBox="0 0 60 50" aria-hidden="true">${UI.handPath(p.skin, false)}</svg>
-      <svg class="hand hand-r" viewBox="0 0 60 50" aria-hidden="true">${UI.handPath(p.skin, true)}</svg>
-      <div class="dealer-name">${p.name}</div>
-    </div>`;
+    return `<div class="dealer" data-dealer="${key}">${Art.dealer(p)}${Art.hand(p, true)}${Art.hand(p, false)}<div class="dealer-name">${p.name}</div></div>`;
   },
 
-  handPath(skin, right) {
-    const g = `<rect x="2" y="16" width="16" height="22" rx="4" fill="#f4efe4"/>
-      <rect x="15" y="15" width="5" height="24" rx="2" fill="#d9d1c0"/>
-      <path d="M19 18 C30 12 44 14 52 18 C58 21 58 27 52 28 C56 30 56 35 50 35 C53 37 52 42 46 41 C44 44 38 44 34 41 L19 38 Z" fill="${skin}"/>
-      <path d="M38 28 L52 28 M38 34 L50 35" stroke="#000" stroke-opacity=".15" stroke-width="1.2"/>
-      <path d="M26 18 C30 10 38 10 40 16" fill="${skin}"/>`;
-    return right ? `<g transform="translate(60 0) scale(-1 1)">${g}</g>` : g;
-  },
-
-  dealerDeal(root, side = 'r') {
+  /* the dealing hand reaches towards `target` (an element) and comes back */
+  dealerDeal(root, side = 'r', target = null) {
     const h = root && root.querySelector('.dealer .hand-' + side);
     if (!h) return;
-    h.classList.remove('deal');
-    void h.getBoundingClientRect();
-    h.classList.add('deal');
+    let dx = side === 'r' ? -12 : 12, dy = 26;
+    if (target && target.getBoundingClientRect) {
+      const a = h.getBoundingClientRect(), b = target.getBoundingClientRect();
+      dx = ((b.left + b.width / 2) - (a.left + a.width / 2)) * 0.32;
+      dy = Math.max(10, ((b.top + b.height / 2) - (a.top + a.height / 2)) * 0.32);
+    }
+    const rot = dx < 0 ? 12 : -12;
+    h.animate([
+      { transform: 'none' },
+      { transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`, offset: 0.45 },
+      { transform: 'none' }
+    ], { duration: 420, easing: 'cubic-bezier(.3,.6,.3,1)' });
+  },
+
+  /* where dealt cards come from: the deck in the dealer's hand, or a fallback */
+  deckSource(root, fallback) {
+    return (root && root.querySelector('.dealer .hand-l')) || fallback;
+  },
+
+  /* riffle shuffle: hands come together a few times */
+  dealerShuffle(root) {
+    const l = root && root.querySelector('.dealer .hand-l');
+    const r = root && root.querySelector('.dealer .hand-r');
+    if (!l || !r) return Promise.resolve();
+    Sound.flip();
+    const kf = d => [{ transform: 'none' }, { transform: `translate(${d}px, 6px) rotate(${d > 0 ? -8 : 8}deg)` }, { transform: 'none' }];
+    const opt = { duration: 300, iterations: 3, easing: 'ease-in-out' };
+    [0, 300, 600].forEach(t => setTimeout(() => Sound.card(), t));
+    l.animate(kf(18), opt);
+    return r.animate(kf(-18), opt).finished.catch(() => {});
+  },
+
+  /* the dealer pushes chips to a player */
+  payChips(root, target, amount) {
+    const h = root && root.querySelector('.dealer .hand-r');
+    if (!h || !target || amount <= 0) return;
+    UI.dealerDeal(root, 'r', target);
+    const vals = [...CHIPS].reverse().filter(c => c.v <= Math.max(10, amount)).slice(0, 3).map(c => c.v);
+    vals.forEach((v, i) => setTimeout(() => { UI.flyChip(h, target, v); Sound.chip(); }, 120 + i * 110));
   },
 
   avatar(p, extra = '') {
-    return `<div class="avatar ${extra}"><svg viewBox="0 0 100 100" aria-hidden="true">
-      <circle cx="50" cy="50" r="50" fill="#123a28"/>
-      <g transform="translate(0 6) scale(.5) translate(0 40)">
-        <path d="M40 150 C44 112 62 100 100 98 C138 100 156 112 160 150 Z" fill="${p.shirt || '#2a62c4'}"/>
-        <path d="M86 98 L100 122 L114 98 Z" fill="#fbf8f0"/>
-        <rect x="92" y="76" width="16" height="22" fill="${p.skin}"/>
-        ${UI.head(p, 100, 56)}
-      </g>
-    </svg></div>`;
+    return `<div class="avatar ${extra}">${p.photo ? `<img src="${p.photo}" alt="">` : Art.icon(p)}</div>`;
+  },
+
+  plate(p, money, extra = '') {
+    return `<div class="plate ${extra}">${UI.avatar(p, 'round')}
+      <div class="plate-box"><div class="plate-name">${esc(p.name)}</div><div class="plate-money js-money">${money}</div></div></div>`;
+  },
+
+  /* computer players keep their own bankrolls inside each save */
+  npcBank(name) {
+    const s = Store.current;
+    if (!s) return 10000;
+    s.npc = s.npc || {};
+    if (s.npc[name] == null) s.npc[name] = 3000 + randInt(48) * 1000;
+    return s.npc[name];
+  },
+  npcAdjust(name, delta) {
+    const s = Store.current;
+    if (!s) return;
+    UI.npcBank(name);
+    s.npc[name] = round2(s.npc[name] + delta);
+    Store.persist();
+  },
+  /* make sure a computer player can cover a stake (they "rebuy" if broke) */
+  npcStake(name, stake) {
+    if (UI.npcBank(name) < stake) UI.npcAdjust(name, 10000);
+    UI.npcAdjust(name, -stake);
+  },
+
+  /* character picker: resolves { avatar, photo } or null if cancelled */
+  async pickCharacter(current = {}) {
+    let sel = current.avatar === 1 ? 1 : 0;
+    let photo = current.photo || null;
+    const opts = [0, 1];
+    const tiles = () => opts.map(i => `<button class="ap ${!photo && sel === i ? 'on' : ''}" data-i="${i}">${Art.icon(CHARACTERS[i])}<span>${i ? 'Her' : 'Him'}</span></button>`).join('')
+      + `<label class="ap photo ${photo ? 'on' : ''}"><input type="file" accept="image/*" class="js-file">${photo ? `<img src="${photo}" alt="">` : '<b>+</b>'}<span>${photo ? 'Your photo' : 'Use a photo'}</span></label>`;
+    const ok = await UI.modal({
+      title: 'Choose your look',
+      html: `<p class="setup-note">Pick an icon, or use a photo &mdash; it gets turned into poster-style art. Only use photos of people who are happy for you to.</p><div class="avatar-pick js-pick">${tiles()}</div>`,
+      buttons: [{ label: 'Cancel', value: false }, { label: 'Done', cls: 'gold', value: true }],
+      onMount: m => {
+        const box = m.querySelector('.js-pick');
+        box.addEventListener('click', e => {
+          const b = e.target.closest('button.ap');
+          if (!b) return;
+          sel = +b.dataset.i; photo = null; Sound.click();
+          box.innerHTML = tiles();
+        });
+        box.addEventListener('change', async e => {
+          const f = e.target.files && e.target.files[0];
+          if (!f) return;
+          UI.toast('Painting your portrait…', 4000);
+          try { photo = await Art.posterize(f); box.innerHTML = tiles(); UI.toast('Looking sharp'); }
+          catch (err) { UI.toast('Couldn\u2019t read that photo'); }
+        });
+      }
+    });
+    return ok ? { avatar: sel, photo } : null;
+  },
+
+  /* the character the player picked for the current save */
+  playerChar() {
+    const s = Store.current;
+    const i = s && Number.isInteger(s.avatar) ? s.avatar : 0;
+    return Object.assign({}, CHARACTERS[i] || CHARACTERS[0], { name: s ? s.name : 'You', photo: s && s.photo || null });
+  },
+
+  /* opponents, never the same face as the player */
+  opponents(n) {
+    return shuffle(CHARACTERS.slice()).slice(0, n);
   }
+
 };
 
 /* Rules text shared by the lobby and in-game info buttons */

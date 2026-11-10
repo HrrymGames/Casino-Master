@@ -38,6 +38,8 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSRequiresIPhoneOS: true
         ITSAppUsesNonExemptEncryption: false
+        NSCameraUsageDescription: Take a photo to turn into your player portrait.
+        NSPhotoLibraryUsageDescription: Choose a photo to turn into your player portrait.
         UIStatusBarHidden: true
         UIViewControllerBasedStatusBarAppearance: true
         UIRequiresFullScreen: true

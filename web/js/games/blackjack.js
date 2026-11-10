@@ -90,6 +90,7 @@ class Blackjack extends GameBase {
     const spot = this.$('.js-betspot');
     const showSpot = this.phase === 'bet' && !this.hands.length;
     spot.classList.toggle('hidden', !showSpot);
+    spot.classList.toggle('has', this.bet > 0);
     this.$('.js-betstack').innerHTML = UI.chipStack(this.bet);
   }
 
@@ -230,8 +231,8 @@ class Blackjack extends GameBase {
     const ce = Cards.el(c, false);
     container.appendChild(ce);
     Sound.card();
-    UI.dealerDeal(this.root, target === 'd' ? 'l' : 'r');
-    await flyFrom(ce, this.$('.js-shoe'), { duration: 320, scale: 0.6 });
+    UI.dealerDeal(this.root, 'r', ce);
+    await flyFrom(ce, UI.deckSource(this.root, this.$('.js-shoe')), { duration: 340, scale: 0.6 });
     if (faceUp) { Cards.flip(ce, true); this.seen(c); }
     this.renderShoe();
     this.renderValues();
@@ -243,6 +244,7 @@ class Blackjack extends GameBase {
     const cards = $$('.bj-hands .card, .js-dcards .card', this.root);
     if (!cards.length && !this.hands.length) return;
     const tray = this.$('.js-discard');
+    UI.dealerDeal(this.root, 'r', tray);
     this.discarded += cards.length;
     const anims = cards.map((c, i) => new Promise(r => setTimeout(() => flyTo(c, tray, { scale: 0.4, fadeOut: true, duration: 300 }).then(r), i * 25)));
     this.hands = []; this.dealer = [];
@@ -265,6 +267,7 @@ class Blackjack extends GameBase {
     await this.clearTable();
     if (this.shoe.length < this.cut) {
       UI.banner('Shuffling the shoe…', '', 1000);
+      UI.dealerShuffle(this.root);
       this.newShoe();
       this.renderShoe();
       await this.wait(1100);
@@ -319,7 +322,7 @@ class Blackjack extends GameBase {
     if (!hole || !hole.hidden) return;
     hole.hidden = false;
     const ce = this.$('.js-dcards').children[1];
-    UI.dealerDeal(this.root, 'l');
+    UI.dealerDeal(this.root, 'r', ce);
     Cards.flip(ce, true);
     this.seen(hole);
     this.renderValues();
@@ -443,6 +446,7 @@ class Blackjack extends GameBase {
       returned += ret;
       const net = ret - h.bet;
       this.handResult(i, label + (net > 0 ? ` +${money(net)}` : ''), kind);
+      if (net > 0) { const box = this.handBox(i); this.later(250 + i * 200, () => UI.payChips(this.root, box && box.querySelector('.hand-bet'), net)); }
       parts.push(label.replace('!', ''));
     });
     if (this.insurance && dBJ) returned += this.insurance * 3;

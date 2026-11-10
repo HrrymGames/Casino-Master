@@ -27,6 +27,8 @@ const URL = 'file://' + path.resolve(__dirname, '../web/index.html');
   const until = async (fn, ms = 20000) => {
     const t0 = Date.now();
     while (Date.now() - t0 < ms) { if (await page.evaluate(fn)) return true; await page.waitForTimeout(30); }
+    console.log('ERRORS so far:\n' + errors.join('\n'));
+    console.log('state:', await page.evaluate(() => JSON.stringify({ phase: App.game && App.game.phase, acting: App.game && App.game.acting })));
     throw new Error('timeout waiting for ' + fn.toString().slice(0, 120));
   };
   const check = async label => {
