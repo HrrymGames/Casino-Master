@@ -154,23 +154,10 @@ const UI = {
   },
 
   /* ---------- artwork (see art.js) ---------- */
-  dealer(key = null) {
-    const photo = Store.data && Store.data.settings.dealerPhoto;
+  /* the dealer: one fixed photo, cropped below the face, background removed */
+  dealer() {
     const deck = `<div class="dp-deck"><div class="card deckback"><div class="card-inner"><div class="card-face back">${Cards.BACK}</div></div></div></div>`;
-    const inner = photo
-      ? `<img src="${photo}" alt="">`
-      : `<label class="dp-pick">Tap to choose your dealer photo<input type="file" accept="image/*" class="js-dealer-file" hidden></label>`;
-    return `<div class="dealer photo-dealer ${photo ? '' : 'empty'}"><div class="dp-frame">${inner}</div>${deck}</div>`;
-  },
-
-  /* choose the dealer photo from anywhere (lobby or at a table) */
-  async setDealerPhoto(file) {
-    try {
-      Store.setting('dealerPhoto', await Art.dealerPhoto(file));
-      $$('.photo-dealer').forEach(d => { d.outerHTML = UI.dealer(); });
-      UI.toast('Dealer set');
-      return true;
-    } catch (err) { UI.toast('Couldn\u2019t read that photo'); return false; }
+    return `<div class="dealer photo-dealer"><div class="dp-frame"><img src="img/dealer.png" alt=""></div>${deck}</div>`;
   },
 
   /* the dealing hand reaches towards `target` (an element) and comes back */

@@ -181,11 +181,6 @@ const App = {
           <label class="toggle"><input type="checkbox" class="js-haptics" ${Store.data.settings.haptics ? 'checked' : ''}><span></span>Haptics</label>
           <button class="btn small js-saves">Switch save</button>
         </div>
-        <div class="settings-row dealer-row">
-          <div class="dealer-thumb">${Store.data.settings.dealerPhoto ? `<img src="${Store.data.settings.dealerPhoto}" alt="">` : ''}</div>
-          <div class="dealer-txt"><b>Dealer</b><small>${Store.data.settings.dealerPhoto ? 'Your photo' : 'No photo yet'}</small></div>
-          <label class="btn small">${Store.data.settings.dealerPhoto ? 'Change photo' : 'Choose photo'}<input type="file" accept="image/*" class="js-dealer-file" hidden></label>
-        </div>
       </div>
     </div>`;
     UI.bindTopbar(root, { onBack: () => this.go('title') });
@@ -199,7 +194,7 @@ const App = {
       this.go('lobby');
     };
     $('.js-haptics', root).onchange = e => Store.setting('haptics', e.target.checked);
-    $('.js-dealer-file', root).onchange = async e => { const f = e.target.files && e.target.files[0]; if (f && await UI.setDealerPhoto(f)) this.go('lobby'); };
+
     const mw = $('.mini-wheel', root);
     if (mw) Roulette.drawWheel(mw, isLandscape() ? 110 : 96);
     $('.game-grid', root).addEventListener('click', e => {
@@ -250,9 +245,5 @@ const App = {
     this.go('lobby');
   }
 };
-
-document.addEventListener('change', e => {
-  if (e.target.matches && e.target.matches('#screen .dp-pick .js-dealer-file') && e.target.files && e.target.files[0]) UI.setDealerPhoto(e.target.files[0]);
-});
 
 window.addEventListener('DOMContentLoaded', () => App.start());
