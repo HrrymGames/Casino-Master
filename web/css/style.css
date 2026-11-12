@@ -810,3 +810,12 @@ input { -webkit-user-select: text; user-select: text; }
 .dealer-txt { flex: 1; min-width: 80px; display: flex; flex-direction: column; font-size: 14px; }
 .dealer-txt small { opacity: .65; font-size: 12px; }
 .dealer-row label.btn { display: inline-flex; align-items: center; }
+
+.photo-dealer.empty .dp-frame { display: flex; align-items: flex-start; justify-content: center; padding-top: 18%; }
+.dp-pick {
+  display: block; max-width: 86%; text-align: center; font-size: 12px; font-weight: 700; line-height: 1.3; cursor: pointer;
+  padding: 8px 10px; border-radius: 12px; border: 1.5px dashed rgba(231,200,115,.7); background: rgba(0,0,0,.55); color: #fff3cf;
+}
+.dp-deck { opacity: 0; pointer-events: none; }
+.pile-spot.discard .pile-lbl { margin-top: 9px; }
+@media (orientation: landscape) { .photo-dealer.empty .dp-frame { padding-top: 4%; } .dp-pick { font-size: 9px; padding: 4px 6px; max-width: 70%; } }

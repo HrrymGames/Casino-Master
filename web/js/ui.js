@@ -156,14 +156,21 @@ const UI = {
   /* ---------- artwork (see art.js) ---------- */
   dealer(key = null) {
     const photo = Store.data && Store.data.settings.dealerPhoto;
-    if (photo) {
-      return `<div class="dealer photo-dealer"><div class="dp-frame"><img src="${photo}" alt=""></div>
-        <div class="dp-deck"><div class="card deckback"><div class="card-inner"><div class="card-face back">${Cards.BACK}</div></div></div></div></div>`;
-    }
-    const keys = Object.keys(DEALERS);
-    if (!DEALERS[key]) key = keys[randInt(keys.length)];
-    const p = DEALERS[key];
-    return `<div class="dealer" data-dealer="${key}">${Art.dealer(p)}${Art.hand(p, true)}${Art.hand(p, false)}<div class="dealer-name">${p.name}</div></div>`;
+    const deck = `<div class="dp-deck"><div class="card deckback"><div class="card-inner"><div class="card-face back">${Cards.BACK}</div></div></div></div>`;
+    const inner = photo
+      ? `<img src="${photo}" alt="">`
+      : `<label class="dp-pick">Tap to choose your dealer photo<input type="file" accept="image/*" class="js-dealer-file" hidden></label>`;
+    return `<div class="dealer photo-dealer ${photo ? '' : 'empty'}"><div class="dp-frame">${inner}</div>${deck}</div>`;
+  },
+
+  /* choose the dealer photo from anywhere (lobby or at a table) */
+  async setDealerPhoto(file) {
+    try {
+      Store.setting('dealerPhoto', await Art.dealerPhoto(file));
+      $$('.photo-dealer').forEach(d => { d.outerHTML = UI.dealer(); });
+      UI.toast('Dealer set');
+      return true;
+    } catch (err) { UI.toast('Couldn\u2019t read that photo'); return false; }
   },
 
   /* the dealing hand reaches towards `target` (an element) and comes back */
